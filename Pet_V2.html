@@ -1,0 +1,378 @@
+
+
+<!-- 1. Spend money to earn more each click.
+2. Buy auto clicker. -->
+
+
+
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <body>
+
+
+    <div id = "titleDiv">
+      <h2 align = "center">This is a pet simulator!</h2>
+    </div>
+
+
+    <div id = "initializationDiv" align="center">
+      <p id="welcomeMessage">Welcome to my pet simulator.
+        Please enter a name for your pet.</p>
+      <br/>
+
+      <input type="text" id="petNameInput">
+
+      <button type="button" id="petNameInputButton" onclick="initializePage();
+      var tik = setInterval(oneTik, frequency); var auto = setInterval(autoClick, 1000); var check = setInterval(checkEnd, 100)">Go!</button>
+    </div>
+
+
+    <div id = "actualPetDiv" align="center">
+      <p>Keep your pet alive AND earn $10,000 to win!<p/>
+      <br/>
+    </div>
+
+    <div id = "player" align="center">
+      <br/>
+
+      <p id = "insufficientFundWarning"></p>
+      <p id = "playerMoney"></p>
+    </div>
+
+
+
+    <script type="text/javascript">
+
+    /* Temporary pet object */
+    var Pet = new Pet("Temporary name");
+    var Player = new Player();
+    var timeAlive = 0;
+    var frequency = 7000;
+
+    /* This function initializes the pet program */
+    function initializePage() {
+
+
+      /* Player money */
+      Player.showPlayerMoney();
+      var earnMoneyButton = document.createElement("button");
+      earnMoneyButton.setAttribute("id", "earnMoneyButton");
+      earnMoneyButton.innerHTML = 'Click to earn money!';
+      earnMoneyButton.setAttribute("onclick", "Player.earnMoneyFunc()");
+      document.getElementById("player").appendChild(earnMoneyButton);
+
+      var upgradeInfo = document.createElement("p");
+      upgradeInfo.setAttribute("id", "upgradeInfo");
+      upgradeInfo.innerHTML = 'To earn more money per click, you can spend $'
+      + (Player.ability*500) + ' to earn $' + (Player.ability+1) + ' per click.' + '<br/>';
+      document.getElementById("player").appendChild(upgradeInfo);
+
+      var upgradeButton = document.createElement("button");
+      upgradeButton.setAttribute("id", "upgradeButton");
+      upgradeButton.innerHTML = 'Upgrade';
+      upgradeButton.setAttribute("onclick", "Player.upgrade()");
+      document.getElementById("player").appendChild(upgradeButton);
+
+      var autoClickerInfo = document.createElement("p");
+      autoClickerInfo.setAttribute("id", "autoClickerInfo");
+      autoClickerInfo.innerHTML = 'Click below to buy an auto clicker for $1,000. One click per second.';
+      document.getElementById("player").appendChild(autoClickerInfo);
+
+      var autoClickerButton = document.createElement("button");
+      autoClickerButton.setAttribute("id", "autoClickerButton");
+      autoClickerButton.innerHTML = 'Buy auto clicker';
+      autoClickerButton.setAttribute("onclick", "Player.autoClicker()");
+      document.getElementById("player").appendChild(autoClickerButton);
+
+      /* Record user input */
+      var userInputName = document.getElementById("petNameInput").value;
+
+      /* Initialize pet object */
+      Pet.name = userInputName;
+
+      /* In order to initialize the pet page, we will have to delete
+       * the welcome paragraph.
+       */
+       var initializationDiv = document.getElementById("initializationDiv");
+       document.body.removeChild(initializationDiv);
+
+       /* Then, we have to create actual pet content. */
+       var actualPetDiv = document.getElementById("actualPetDiv");
+
+       /* Draw the pet. */
+       var petPara = document.createElement("p");
+       petPara.innerHTML =
+       "^..^&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp/" + "<br />" +
+       "/_/\_____/&nbsp" + "<br />" +
+       "&nbsp&nbsp&nbsp/\&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp/\&nbsp" + "<br />" +
+       "&nbsp&nbsp/&nbsp&nbsp\&nbsp&nbsp&nbsp&nbsp/&nbsp&nbsp\\" + "<br />";
+       petPara.setAttribute("id", "petPara");
+       actualPetDiv.appendChild(petPara);
+       actualPetDiv.appendChild(document.createElement("br"));
+
+       /* Show status of pet */
+       var petStatsPara = document.createElement("p");
+       petStatsPara.setAttribute("id", "petStatsPara");
+       actualPetDiv.appendChild(petStatsPara);
+       actualPetDiv.appendChild(document.createElement("br"));
+       Pet.showStats();
+
+       /* Add interactiona buttons */
+       var healthButton = document.createElement("button");
+       healthButton.setAttribute("id", "healthButton");
+       healthButton.setAttribute("onclick", "playerCare(Pet, 0)");
+       healthButton.innerHTML = "Take to vet.";
+       actualPetDiv.appendChild(healthButton);
+
+       var foodButton = document.createElement("button");
+       foodButton.setAttribute("id", "foodButton");
+       foodButton.setAttribute("onclick", "playerCare(Pet, 1)");
+       foodButton.innerHTML = "Feed food.";
+       actualPetDiv.appendChild(foodButton);
+
+       var waterButton = document.createElement("button");
+       waterButton.setAttribute("id", "waterButton");
+       waterButton.setAttribute("onclick", "playerCare(Pet, 2)");
+       waterButton.innerHTML = "Feed water.";
+       actualPetDiv.appendChild(waterButton);
+
+       var loveButton = document.createElement("button");
+       loveButton.setAttribute("id", "loveButton");
+       loveButton.setAttribute("onclick", "playerCare(Pet, 3)");
+       loveButton.innerHTML = "Give attention.";
+       actualPetDiv.appendChild(loveButton);
+       actualPetDiv.appendChild(document.createElement("br"));
+
+
+       /* Add the jump button */
+       var jumpButton = document.createElement("button");
+       jumpButton.setAttribute("id", "jumpButton");
+       jumpButton.setAttribute("onclick", "jumpToPuppy()");
+       jumpButton.innerHTML = "I want to see some real puppies!";
+       actualPetDiv.appendChild(jumpButton);
+
+
+    }
+
+
+
+
+
+
+
+    /* This is the function called when player interacts with Pet. */
+    function playerCare(pet, i) {
+
+      var newMoney = Player.playerMoney - 10;
+
+      if (newMoney >= 0) {
+
+      var inc = 15 * Math.random();
+      inc = parseInt(inc.toFixed(0));
+      if (!pet.isDead) {
+        document.getElementById("insufficientFundWarning").innerHTML = '';
+        Player.playerMoney = Player.playerMoney - 10;
+        Player.showPlayerMoney();
+        if ((pet.stats[i] + inc) < 100) {
+          pet.stats[i] += inc;
+        } else {
+          pet.stats[i] = 100;
+        }
+         Pet.showStats();
+
+      }
+    } else {
+
+      document.getElementById("insufficientFundWarning").innerHTML = 'You don\'t have enough money.';
+    }
+
+    }
+
+
+    /* This function is called for every tik.
+     * I origianlly make oneTik take a parameter pet,
+     * but I had to abandon that design because when oneTik
+     * is passed onto window.setInterval, it cannot take a parameter.
+     */
+    function oneTik() {
+      Pet.petOneTik();
+    }
+
+
+    function checkEnd() {
+      if ((!Pet.isDead) && (Player.playerMoney >= 10000)) {
+        insufficientFundWarning.innerHTML = 'YOU HAVE WON!';
+        clearInterval(tik);
+        clearInterval(auto);
+        clearInterval(check);
+      } else if (Pet.isDead) {
+        insufficientFundWarning.innerHTML = 'YOU HAVE LOST!';
+        clearInterval(tik);
+        clearInterval(auto);
+        clearInterval(check);
+      }
+    }
+
+
+
+
+
+
+    function autoClick() {
+      if (Player.hasAutoClicker == true) {
+        Player.earnMoneyFunc();
+      }
+    }
+
+
+    /* This function takes the user to a different page */
+    function jumpToPuppy() {
+      if (confirm("You are about to leave this page. \nProceed?")) {
+        window.location.assign("https://www.ecosia.org/images?q=cute+puppies");
+      }
+    }
+
+
+    /* This is a constructor for a Pet object. */
+    function Pet(name) {
+    /* A pet has four fields. */
+    this.name = name;
+    /* Fpr stats, index 1 is health, index 2 is water, index 3 food, and index 4 is love. */
+    this.stats = [100,100,100,100];
+    this.statsShowing = false;
+    this.isDead = false;
+
+    /* These are the methods for Pet */
+
+    /* For each tick, reduce each stats by a random number
+     *  from 0 (inclusive) to 10 (exclusive).
+     */
+    this.petOneTik = function() {
+
+      if (!this.isDead) {
+
+
+      for (i = 0; i < 4; i++) {
+        var redc = 10 * Math.random();
+        redc = Math.round(redc);
+        /* If the pet is dead, change the drawing. */
+          if (this.stats[i]-redc <=0 ) {
+          this.stats[i] = 0;
+          this.isDead = true;
+          document.getElementById("petPara").innerHTML =
+              '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp| &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' + '<br/>'
+              + '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp----- &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' + '<br/>'
+              + '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp| &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' + '<br/>'
+              + '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp| &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <br/> -----------------';
+        } else {
+          this.stats[i] -= redc;
+        }
+      }
+      timeAlive += frequency;
+      }
+      this.showStats();
+  }
+    /* End of petOneTik. */
+
+    /* Call this function with the corresponding index
+     * if the player takes care of the pet.
+     */
+    this.petIncrease = function(index) {
+      this.stats[index] += 10 * Math.random();
+      if (this.stats[index] > 100) {
+        this.stats[index] = 100;
+      }
+    }
+
+
+    /* Function for showing stats */
+     this.showStats = function () {
+     /* If pet is dead, don't show status */
+     if (this.isDead) {
+       petStatsPara.innerHTML =
+       'Your pet ' + this.name + ' is DEAD!' + '<br/>'
+       + 'Your pet was alive for ' + Math.round(timeAlive/1000) + ' seconds.';
+     } else {
+       petStatsPara.innerHTML =
+       'This is your pet ' + this.name + '.' + '<br/>' + '<br/>' +
+       'Health: ' +this.stats[0] + '<br/>' + 'Food: ' + this.stats[1] + '<br/>' + 'Water: ' + this.stats[2]
+      + '<br/>' + 'Love: ' + this.stats[3];
+     }
+    }
+  }
+  /* This is the end of the constructor for Pet. */
+
+
+
+
+
+
+  /* This is the player functions */
+  function Player() {
+    this.playerMoney = 100;
+    this.hasAutoClicker = false;
+    this.ability = 1;
+    this.abilityUpperBound = 10;
+
+    this.showPlayerMoney = function() {
+      var autoClickerText = '';
+      if (this.hasAutoClicker) {
+        autoClickerText = 'Your auto clicker clicks 1 time per second.';
+      } else {
+        autoClickerText = 'You do not have an auto clicker yet.';
+      }
+      document.getElementById("playerMoney").innerHTML =
+      'You currently own $' + this.playerMoney + ', and earn $' + this.ability + ' per click. ' + autoClickerText;
+    }
+
+
+    this.earnMoneyFunc = function() {
+      this.playerMoney += this.ability;
+      this.showPlayerMoney();
+    }
+
+
+    this.upgrade = function() {
+      if (this.ability != this.abilityUpperBound) {
+        if (this.playerMoney >= (this.ability*500)) {
+          this.playerMoney -= this.ability*500;
+          this.ability += 1;
+          if (this.ability != this.abilityUpperBound) {
+            upgradeInfo.innerHTML = 'You can spend $'
+          + (Player.ability*500) + ' to earn $' + (Player.ability+1) + ' per click.' + '<br/>';
+        } else {
+          upgradeInfo.innerHTML = 'You have already upgraded to the fullest.';
+        }
+        } else {
+          insufficientFundWarning.innerHTML = 'You don\'t have enough money to upgrade.';
+        }
+      } else {
+        insufficientFundWarning.innerHTML = 'You cannot upgrade anymore!';
+      }
+      this.showPlayerMoney();
+    }
+
+
+    this.autoClicker = function () {
+      if (this.hasAutoClicker) {
+        insufficientFundWarning.innerHTML = 'You already have an auto clicker!';
+      } else {
+      if (this.playerMoney < 1000) {
+        insufficientFundWarning.innerHTML = 'You need $1000 to buy an auto clicker.';
+      } else {
+        this.playerMoney -= 1000;
+        this.hasAutoClicker = true;
+        autoClickerInfo.innerHTML = 'Auto clicker purchased!';
+      }
+    }
+  }
+
+  }
+
+
+
+    </script>
+
+  </body>
+</html>
