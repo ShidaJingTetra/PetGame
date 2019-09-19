@@ -24,12 +24,12 @@
       <input type="text" id="petNameInput">
 
       <button type="button" id="petNameInputButton" onclick="initializePage();
-      var tik = setInterval(oneTik, frequency); var auto = setInterval(autoClick, 1000); var check = setInterval(checkEnd, 100)">Go!</button>
+      var tik = setInterval(oneTik, frequency); var auto = setInterval(autoClick, 1000); var check = setInterval(checkEnd, 100); var autoFeed = setInterval(autoFeeding, 100);">Go!</button>
     </div>
 
 
     <div id = "actualPetDiv" align="center">
-      <p>Keep your pet alive AND earn $10,000 to win!<p/>
+      <p>Keep your pet alive AND earn $50,000 to win!</p>
       <br/>
     </div>
 
@@ -84,6 +84,17 @@
       autoClickerButton.innerHTML = 'Buy auto clicker';
       autoClickerButton.setAttribute("onclick", "Player.autoClicker()");
       document.getElementById("player").appendChild(autoClickerButton);
+
+      var autoFeedInfo = document.createElement("p");
+      autoFeedInfo.setAttribute("id", "autoFeedInfo");
+      autoFeedInfo.innerHTML = 'Click below to buy auto feeding robot for $10,000. It will make sure that your pet gets feed in time.';
+      document.getElementById("player").appendChild(autoFeedInfo);
+
+      var autoFeedButton = document.createElement("button");
+      autoFeedButton.setAttribute("id", "autoFeedButton");
+      autoFeedButton.innerHTML = 'Buy auto feeding robot';
+      autoFeedButton.setAttribute("onclick", "Player.autoFeedFunc()");
+      document.getElementById("player").appendChild(autoFeedButton);
 
       /* Record user input */
       var userInputName = document.getElementById("petNameInput").value;
@@ -201,20 +212,31 @@
 
 
     function checkEnd() {
-      if ((!Pet.isDead) && (Player.playerMoney >= 10000)) {
+      if ((!Pet.isDead) && (Player.playerMoney >= 50000)) {
         insufficientFundWarning.innerHTML = 'YOU HAVE WON!';
         clearInterval(tik);
         clearInterval(auto);
         clearInterval(check);
+        clearInterval(autoFeed);
       } else if (Pet.isDead) {
         insufficientFundWarning.innerHTML = 'YOU HAVE LOST!';
         clearInterval(tik);
         clearInterval(auto);
         clearInterval(check);
+        clearInterval(autoFeed);
       }
     }
 
 
+    function autoFeeding() {
+      if (Player.hasAutoFeed == true) {
+        for (i=0; i<4; i++) {
+          if (Pet.stats[i] < 30) {
+            playerCare(Pet, i);
+          }
+        }
+      }
+    }
 
 
 
@@ -314,6 +336,7 @@
     this.hasAutoClicker = false;
     this.ability = 1;
     this.abilityUpperBound = 10;
+    this.hasAutoFeed = false;
 
     this.showPlayerMoney = function() {
       var autoClickerText = '';
@@ -330,6 +353,20 @@
     this.earnMoneyFunc = function() {
       this.playerMoney += this.ability;
       this.showPlayerMoney();
+    }
+
+    this.autoFeedFunc = function() {
+      if (this.hasAutoFeed) {
+        insufficientFundWarning.innerHTML = 'You already have an auto feeding robot!';
+      } else {
+      if (this.playerMoney < 10000) {
+        insufficientFundWarning.innerHTML = 'You need $10000 to buy an auto feeding robot.';
+      } else {
+        this.playerMoney -= 10000;
+        this.hasAutoFeed = true;
+        autoFeedInfo.innerHTML = 'Auto feeding robot purchased!';
+      }
+    }
     }
 
 
